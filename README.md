@@ -1,2 +1,2 @@
-# c-programming-101
-C programming learning from the start
+# C/C++ Programming 101
+C/C++ programming learning from the start

@@ -1,0 +1,5 @@
+# Lesson 0077: Minimal CMake
+# Usage from cpp/ai_lessons: cmake -S . -B build && cmake --build build
+cmake_minimum_required(VERSION 3.10)
+project(lesson_0077)
+add_executable(0077_cmake 0077_cmake.cpp)

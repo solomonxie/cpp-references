@@ -1,5 +1,5 @@
 /*
-    $ clang++ -std=c++20 -Wall -Wextra -O0 -g srv_1_tcp.cpp -o build/srv_1_tcp && ./build/srv_1_tcp
+    $ clang++ -std=c++20 -Wall -Wextra -O0 -g hello_webserver/srv_1_tcp.cpp -o build/srv_1_tcp && ./build/srv_1_tcp
     then, in another terminal:
     $ nc localhost 9090
     then: type anything and hit enter.

@@ -1,6 +1,8 @@
 /*
-    $ clang++ -std=c++20 -Wall -Wextra -O0 -g srv_1_tcp.cpp -o build/srv_1_tcp
-    $ ./build/srv_1_tcp
+    $ clang++ -std=c++20 -Wall -Wextra -O0 -g srv_1_tcp.cpp -o build/srv_1_tcp && ./build/srv_1_tcp
+    then, in another terminal:
+    $ nc localhost 9090
+    then: type anything and hit enter.
 */
 
 #include <iostream>      // console I/O
@@ -49,7 +51,7 @@ int main() {
     */
     char recv_buf[2048];  // fixed buffer for the incoming bytes
     int bytes_read = recv(client_fd, recv_buf, sizeof(recv_buf) - 1, 0);
-    std::string received(recv_buf, bytes_read);
+    std::string received(recv_buf, bytes_read);  // received(...) constructs a std::string from a raw char buffer + length
     std::cout << "Received: " << received << std::endl;
 
     std::string reply = "Hey there! You said: " + received + "\n";

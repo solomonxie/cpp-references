@@ -1,9 +1,9 @@
 /*
-    $ clang++ -std=c++20 -Wall -Wextra -O0 -g hello_webserver/srv_http_2req_parsing.cpp -o build/srv_http_2req_parsing && ./build/srv_http_2req_parsing
+    $ clang++ -std=c++20 -Wall -Wextra -O0 -g hello_webserver/srv_2_http_response.cpp -o build/srv_2_http_response && ./build/srv_2_http_response
     then:
-    curl localhost:9090/api/v1/ping
+    curl localhost:9090
     or:
-    open from browser: http://localhost:9090/api/v1/ping
+    open from browser: http://localhost:9090
 */
 
 #include <iostream>
@@ -11,14 +11,6 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <string>
-#include <sstream>  // for std::istringstream
-
-
-struct HttpRequest {
-    std::string method;
-    std::string path;
-    std::string http_version;
-};
 
 
 int main() {
@@ -45,27 +37,18 @@ int main() {
 
     char recv_buf[2048];
     int bytes_read = recv(client_fd, recv_buf, sizeof(recv_buf) - 1, 0);
-    std::string raw_request(recv_buf, bytes_read);
-    std::cout << "Received: " << raw_request << std::endl;
+    std::string request(recv_buf, bytes_read);
+    std::cout << "Received: " << request << std::endl;
 
-    // Parse the request line
-    std::istringstream stream(raw_request);  // e.g. "GET /ping HTTP/1.1"
-    HttpRequest request;
-    stream >> request.method;  // >> splits on whitespace, same idea as std::cin >>
-    stream >> request.path;
-    stream >> request.http_version;
+    std::string body = "<h1>You sent:</h1>\n<pre>\n" + request + "\n</pre>";
 
-    // Build response
-    std::string body =
-        "<h1>Parsed request line</h1>\n"
-        "<p>Method: " + request.method + "</p>\n"
-        "<p>Path: " + request.path + "</p>\n"
-        "<p>Version: " + request.http_version + "</p>\n";
+    // Every header line needs a trailing "\r\n" (the body doesn't)
     std::string response =
         "HTTP/1.1 200 OK\r\n"
         "Content-Type: text/html\r\n"
         "Content-Length: " + std::to_string(body.size()) + "\r\n"
-        "\r\n" + body;
+        "\r\n"  // blank line separates headers from body
+        + body;
     int bytes_written = send(client_fd, response.c_str(), response.size(), 0);
     std::cout << "Sent bytes: " << bytes_written << std::endl;
 

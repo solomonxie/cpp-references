@@ -1,9 +1,9 @@
 /*
-    $ clang++ -std=c++20 -Wall -Wextra -O0 -g hello_webserver/srv_http_1response.cpp -o build/srv_http_1response && ./build/srv_http_1response
+    $ clang++ -std=c++20 -Wall -Wextra -O0 -g hello_webserver/srv_3_http_req_parsing.cpp -o build/srv_3_http_req_parsing && ./build/srv_3_http_req_parsing
     then:
-    curl localhost:9090
+    curl localhost:9090/api/v1/ping
     or:
-    open from browser: http://localhost:9090
+    open from browser: http://localhost:9090/api/v1/ping
 */
 
 #include <iostream>
@@ -11,6 +11,14 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <string>
+#include <sstream>  // for std::istringstream
+
+
+struct HttpRequest {
+    std::string method;
+    std::string path;
+    std::string http_version;
+};
 
 
 int main() {
@@ -37,12 +45,22 @@ int main() {
 
     char recv_buf[2048];
     int bytes_read = recv(client_fd, recv_buf, sizeof(recv_buf) - 1, 0);
-    std::string request(recv_buf, bytes_read);
-    std::cout << "Received: " << request << std::endl;
+    std::string raw_request(recv_buf, bytes_read);
+    std::cout << "Received: " << raw_request << std::endl;
 
-    std::string body = "<h1>You sent:</h1>\n<pre>\n" + request + "\n</pre>";
+    // Parse the request line
+    std::istringstream stream(raw_request);  // e.g. "GET /ping HTTP/1.1"
+    HttpRequest request;
+    stream >> request.method;  // >> splits on whitespace, same idea as std::cin >>
+    stream >> request.path;
+    stream >> request.http_version;
 
-    // Every header line needs a trailing "\r\n" (the body doesn't)
+    // Build response
+    std::string body =
+        "<h1>Parsed request line</h1>\n"
+        "<p>Method: " + request.method + "</p>\n"
+        "<p>Path: " + request.path + "</p>\n"
+        "<p>Version: " + request.http_version + "</p>\n";
     std::string response =
         "HTTP/1.1 200 OK\r\n"
         "Content-Type: text/html\r\n"

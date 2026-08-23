@@ -1,5 +1,5 @@
 /*
-    $ clang++ -std=c++20 -Wall -Wextra -O0 -g hello_webserver/srv_5_files.cpp -o build/srv_5_files && ./build/srv_5_files
+    $ clang++ -std=c++20 -Wall -Wextra -O0 -g hello_webserver/srv_5_files.cpp -o /tmp/srv_5_files && /tmp/srv_5_files
     then:
     curl -v localhost:9090/about
     or:

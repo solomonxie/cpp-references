@@ -1,0 +1,55 @@
+Build-up plan, step by step.
+
+Basics:
+- Step 0 — C++ refresher
+- Step 1 — raw TCP server
+- Step 2 — first HTTP response
+- Step 3 — HTTP request-line parser
+- Step 4 — response as its own struct
+- Step 5 — routing
+- Step 6 — serving static files
+- Step 7 — many clients at once
+- Step 8 — keep-alive connections
+- Step 9 — non-blocking I/O
+
+Then, aimed at C10K:
+- Step 10 — C10K groundwork
+    - why one-thread-per-connection stops scaling
+    - file descriptors
+    - event loops
+    - epoll
+    - readiness notifications
+    - connection state machines
+    - many sockets, few threads
+- Step 11 — C10K-capable HTTP server
+    - thousands of live connections
+    - partial reads/writes
+    - slow clients
+    - keep-alive at scale
+    - per-connection memory
+    - efficient buffers
+    - avoiding needless copies
+    - connection limits
+- Step 12 — C10K benchmarking
+    - load generation
+    - 1K → 5K → 10K connections
+    - static-file workload
+    - small-response workload
+    - large-response workload
+    - mixed clients hitting different resources
+    - CPU, memory, latency, throughput
+    - finding bottlenecks
+- Step 13 — C10K tuning
+    - epoll architecture refinement
+    - EPOLLIN / EPOLLOUT
+    - edge-triggered vs level-triggered
+    - accept4()
+    - sendfile()
+    - buffer management
+    - fewer allocations
+    - fewer syscalls
+    - thread/event-loop split
+- Step 14 — more HTTP features
+- Step 15 — robustness
+- Step 16 — tests
+- Step 17 — HTTPS

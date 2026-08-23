@@ -1,3 +1,5 @@
+Goal: build a C++ web server from raw sockets, one step at a time.
+
 Build-up plan, step by step.
 
 Basics:

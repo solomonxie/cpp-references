@@ -1,9 +1,9 @@
 /*
     $ clang++ -std=c++20 -Wall -Wextra -O0 -g hello_webserver/srv_8_keepalive.cpp -o /tmp/srv_8_keepalive && /tmp/srv_8_keepalive
     then:
-    curl -v localhost:9090/about
-    or, to watch one connection carry multiple requests:
-    curl -v localhost:9090/about localhost:9090/index.html
+    (send several requests down the same connection)
+    curl -s -I -H "Connection: keep-alive" http://localhost:9090 http://localhost:9090
+    curl -s -I -H "Connection: close" http://localhost:9090 http://localhost:9090
 */
 
 #include <iostream>
@@ -58,21 +58,29 @@ HttpRequest parse_request(std::string raw_request) {
     stream >> request.method;
     stream >> request.path;
     stream >> request.http_version;
-    // HTTP/1.1 defaults to persistent connections, HTTP/1.0 defaults to close
+
+    // HTTP/1.1 defaults to persistent connections, HTTP/1.0 defaults to close,
+    // but an explicit Connection header always wins.
     if (request.http_version == "HTTP/1.1") {
         request.keep_alive = true;
+    } else if (raw_request.find("Connection: keep-alive") != std::string::npos) {
+        request.keep_alive = true;
     }
+    if (raw_request.find("Connection: close") != std::string::npos) {
+        request.keep_alive = false;
+    }
+
     return request;
 }
 
 
-HttpResponse build_response(std::string path, bool keep_alive) {
+HttpResponse build_response(HttpRequest request) {
     HttpResponse response;
     // Route the request
-    if (path == "/") {
-        path = "/index.html";
+    if (request.path == "/") {
+        request.path = "/index.html";
     }
-    std::string filename = "hello_webserver/static" + path;
+    std::string filename = "hello_webserver/static" + request.path;
     std::cout << "Reading file path: " + filename << std::endl;
 
     // Check existence
@@ -95,7 +103,7 @@ HttpResponse build_response(std::string path, bool keep_alive) {
         "HTTP/1.1 " + std::to_string(response.status_code) + " " + response.status_name + " \r\n"
         "Content-Type: " + response.content_type + "\r\n"
         "Content-Length: " + std::to_string(content.size()) + "\r\n"
-        "Connection: " + std::string(keep_alive ? "keep-alive" : "close") + "\r\n"
+        "Connection: " + std::string(request.keep_alive ? "keep-alive" : "close") + "\r\n"
         "\r\n"
         + content;
     return response;
@@ -115,18 +123,16 @@ int handle_client(int client_fd) {
         std::string raw_request(recv_buf, bytes_read);
 
         HttpRequest request = parse_request(raw_request);
-        HttpResponse response = build_response(request.path, request.keep_alive);
+        HttpResponse response = build_response(request);
 
         int bytes_written = send(client_fd, response.body.c_str(), response.body.size(), 0);
-        if (bytes_written <= 0) {
-            break;
-        }
-        if (!request.keep_alive) {
+        if (bytes_written <= 0 || !request.keep_alive) {
             break;
         }
         std::cout << "Keeping connection alive on FD: " << client_fd << std::endl;
     }
     close(client_fd);
+    std::cout << "Connection with client " << client_fd << " closed.\n";
     return 0;
 }
 

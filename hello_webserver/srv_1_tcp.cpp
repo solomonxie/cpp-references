@@ -35,30 +35,29 @@ int main() {
     int listen_result = listen(server_fd, 16);
     std::cout << "listen() returned: " << listen_result << std::endl;
 
-    while (true) {
-        std::cout << "Waiting for a connection...\n";
-        int client_fd = accept(server_fd, nullptr, nullptr);
-        std::cout << "Accepted client FD: " << client_fd << std::endl;
+    // while (true) {  // hold off on looping, one client at a time for now
+    std::cout << "Waiting for a connection...\n";
+    int client_fd = accept(server_fd, nullptr, nullptr);
+    std::cout << "Accepted client FD: " << client_fd << std::endl;
 
-        /*
-           recv_buf
-           ┌───┬───┬───┬───┬───┬───┬─── ... ───┐
-           │   │   │   │   │   │   │           │
-           └───┴───┴───┴───┴───┴───┴─── ... ───┘
-            2048 bytes
-        */
-        char recv_buf[2048];  // fixed buffer for the incoming bytes
-        int bytes_read = recv(client_fd, recv_buf, sizeof(recv_buf) - 1, 0);
-        std::string received(recv_buf, bytes_read);
-        std::cout << "Received: " << received << std::endl;
+    /*
+       recv_buf
+       ┌───┬───┬───┬───┬───┬───┬─── ... ───┐
+       │   │   │   │   │   │   │           │
+       └───┴───┴───┴───┴───┴───┴─── ... ───┘
+        2048 bytes
+    */
+    char recv_buf[2048];  // fixed buffer for the incoming bytes
+    int bytes_read = recv(client_fd, recv_buf, sizeof(recv_buf) - 1, 0);
+    std::string received(recv_buf, bytes_read);
+    std::cout << "Received: " << received << std::endl;
 
-        std::string reply = "Hey there! You said: " + received + "\n";
-        int bytes_written = send(client_fd, reply.c_str(), reply.size(), 0);
-        std::cout << "Sent bytes: " << bytes_written << std::endl;
+    std::string reply = "Hey there! You said: " + received + "\n";
+    int bytes_written = send(client_fd, reply.c_str(), reply.size(), 0);
+    std::cout << "Sent bytes: " << bytes_written << std::endl;
 
-        int close_result = close(client_fd);
-        std::cout << "close() returned: " << close_result << std::endl;
-    }
+    int close_result = close(client_fd);
+    std::cout << "close() returned: " << close_result << std::endl;
 
     return 0;
 }

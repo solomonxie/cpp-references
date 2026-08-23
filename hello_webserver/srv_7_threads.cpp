@@ -1,5 +1,5 @@
 /*
-    $ clang++ -std=c++20 -Wall -Wextra -O0 -g hello_webserver/srv_7_concurrency.cpp -o /tmp/srv_7_concurrency && /tmp/srv_7_concurrency
+    $ clang++ -std=c++20 -Wall -Wextra -O0 -g hello_webserver/srv_7_threads.cpp -o /tmp/srv_7_threads && /tmp/srv_7_threads
     then:
     curl -v localhost:9090/about
     or:
